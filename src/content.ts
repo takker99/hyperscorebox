@@ -11,19 +11,20 @@ import {
 import { ABCBlock } from "./Types.ts";
 import { initIME } from "./IME.ts";
 import WebAudioTinySynth from "https://esm.sh/webaudio-tinysynth@1.1.3";
+import { Scrapbox } from "https://raw.githubusercontent.com/scrapbox-jp/types/0.0.5/mod.ts";
+declare const scrapbox: Scrapbox;
 
 //初期化
 
 const MSG = "hyperscorebox";
 const tinySynth = new WebAudioTinySynth({ voices: 64 });
 const page = new ScoresInPage();
-const update = (timeout = 0, isPageTransition = false) => {
+const update = (timeout = 0, isPageTransition = false) =>
   setTimeout(async () => {
     const ABCBlocks: ABCBlock[] = await getABCBlocks();
     console.log(MSG, "update", "ABCBlocks", ABCBlocks);
     page.update(ABCBlocks, isPageTransition);
   }, timeout);
-};
 const isScoreClicked = (e: MouseEvent): boolean => {
   for (const el of e["path"]) {
     if (el.className === "scoreview") {
@@ -49,7 +50,7 @@ const init = async (): Promise<void> => {
   registerTextInputMutationObserver(() => update());
   registerSharedCursorMutationObserver(update);
 
-  registerPageTransitionObserver(() => update(0, true));
+  scrapbox.addListener("page:changed", () => update(0, true));
   update();
   await initIME(tinySynth);
 };
