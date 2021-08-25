@@ -1,56 +1,59 @@
-import {ScoresInPage} from "./ScoresInPage";
+/// <reference no-default-lib="true"/>
+/// <reference lib="esnext"/>
+/// <reference lib="dom"/>
+import { ScoresInPage } from "./ScoresInPage.ts";
 import {
-    getABCBlocks,
-    registerTextInputMutationObserver,
-    registerPageTransitionObserver,
-    registerSharedCursorMutationObserver
-} from "./Scrapbox";
-import {ABCBlock} from "./Types";
-import {initIME} from "./IME";
-import * as WebAudioTinySynth from "webaudio-tinysynth";
+  getABCBlocks,
+  registerPageTransitionObserver,
+  registerSharedCursorMutationObserver,
+  registerTextInputMutationObserver,
+} from "./Scrapbox.ts";
+import { ABCBlock } from "./Types.ts";
+import { initIME } from "./IME.ts";
+import WebAudioTinySynth from "https://esm.sh/webaudio-tinysynth@1.1.3";
 
 //初期化
 
 const MSG = "hyperscorebox";
-const tinySynth = new WebAudioTinySynth({voices: 64});
+const tinySynth = new WebAudioTinySynth({ voices: 64 });
 const page = new ScoresInPage();
-const update = (timeout: number = 0, isPageTransition: boolean = false) => {
-    setTimeout(async () => {
-        const ABCBlocks: ABCBlock[] = await getABCBlocks();
-        console.log(MSG, "update", "ABCBlocks", ABCBlocks);
-        page.update(ABCBlocks, isPageTransition);
-    }, timeout);
+const update = (timeout = 0, isPageTransition = false) => {
+  setTimeout(async () => {
+    const ABCBlocks: ABCBlock[] = await getABCBlocks();
+    console.log(MSG, "update", "ABCBlocks", ABCBlocks);
+    page.update(ABCBlocks, isPageTransition);
+  }, timeout);
 };
 const isScoreClicked = (e: MouseEvent): boolean => {
-    for (let el of e["path"]) {
-        if (el.className === "scoreview") {
-            return true
-        }
+  for (const el of e["path"]) {
+    if (el.className === "scoreview") {
+      return true;
     }
-    return false
+  }
+  return false;
 };
 const quitEditing = (): void => {
-    const editingABCs = document.getElementsByClassName("abcediting");
-    for (let abcEl of editingABCs) {
-        abcEl.classList.remove("abcediting");
-    }
+  const editingABCs = document.getElementsByClassName("abcediting");
+  Array.prototype.forEach.call(editingABCs, (abcEl: HTMLElement) => {
+    abcEl.classList.remove("abcediting");
+  });
 };
 const handleClickEvent = (e: MouseEvent): void => {
-    update();
-    if (isScoreClicked(e)) return;
-    quitEditing();
+  update();
+  if (isScoreClicked(e)) return;
+  quitEditing();
 };
 const init = async (): Promise<void> => {
-    console.log(MSG, "hello from hyperscorebox");
-    window.addEventListener("click", handleClickEvent);
-    registerTextInputMutationObserver(() => update());
-    registerSharedCursorMutationObserver(update);
+  console.log(MSG, "hello from hyperscorebox");
+  window.addEventListener("click", handleClickEvent);
+  registerTextInputMutationObserver(() => update());
+  registerSharedCursorMutationObserver(update);
 
-    registerPageTransitionObserver(() => update(0, true));
-    update();
-    await initIME(tinySynth);
+  registerPageTransitionObserver(() => update(0, true));
+  update();
+  await initIME(tinySynth);
 };
 
 setTimeout(async () => {
-    await init();
+  await init();
 }, 2000);

@@ -1,38 +1,38 @@
-import {MIDIPlayer} from "./MIDIPlayer";
+import { MIDIPlayer } from "./MIDIPlayer.ts";
 
 export type ABCLink = {
-    startChars: number[],
-    pageTitle: string
-}
+  startChars: number[];
+  pageTitle: string;
+};
 
 export type ScrapboxLine = {
-    text: string
-}
+  text: string;
+};
 
 //コードブロックの状態
 export type ABCBlock = {
-    titleElementID: string
-    titleElement: HTMLElement
-    blockHeight: number
-    offsetLeft: number
-    width: number
-    abc: string
-    isEditing: boolean
-}
+  titleElementID: string;
+  titleElement: HTMLElement;
+  blockHeight: number;
+  offsetLeft: number;
+  width: number;
+  abc: string;
+  isEditing: boolean;
+};
 
 //楽譜表示部の状態
 export type ScoreView = {
-    parentElementID: string
-    element: HTMLElement
-    player: MIDIPlayer
-}
+  parentElementID: string;
+  element: HTMLElement;
+  player: MIDIPlayer;
+};
 
 export type ExternalABC = {
-    source: string,
-    abc: string
-}
+  source: string;
+  abc: string;
+};
 
 export type ImportABCInfo = {
-    project: string,
-    page: string
-}
+  project: string;
+  page: string;
+};
