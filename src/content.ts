@@ -11,8 +11,7 @@ import {
 import { ABCBlock } from "./Types.ts";
 import { initIME } from "./IME.ts";
 import WebAudioTinySynth from "https://esm.sh/webaudio-tinysynth@1.1.3";
-import { Scrapbox } from "https://raw.githubusercontent.com/scrapbox-jp/types/0.0.5/mod.ts";
-declare const scrapbox: Scrapbox;
+import { scrapbox } from "./deps/types.ts";
 
 //初期化
 

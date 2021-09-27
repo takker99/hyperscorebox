@@ -1,7 +1,7 @@
 //楽譜IMEの辞書管理
 //constructorでasync/awaitできないので、initABCDictを最初に呼ぶこと
-import { PageList } from "https://raw.githubusercontent.com/scrapbox-jp/types/0.0.5/mod.ts";
-import { parse } from "https://esm.sh/@progfay/scrapbox-parser@7.1.0";
+import { PageList } from "./deps/types.ts";
+import { parse } from "./deps/scrapbox-parser.ts";
 
 const doremiToABC = {
   "ド": "c",
