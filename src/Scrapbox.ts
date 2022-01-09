@@ -5,6 +5,7 @@ import { ABCBlock, ExternalABC, ImportABCInfo, ScrapboxLine } from "./Types.ts";
 const SCRAPBOX_PROJECT_NAME = location.pathname.split("/")[1];
 export const SCRAPBOX_URL = `https://scrapbox.io/${SCRAPBOX_PROJECT_NAME}/`;
 
+/** 任意のページの行情報を取得する */
 const getPageLines = async (
   page: string,
   project?: string,
@@ -14,6 +15,7 @@ const getPageLines = async (
   return lines;
 };
 
+/** 任意のコードブロックを取得する */
 const getCodeBlock = async (
   pageTitle: string,
   codeTitle: string,
@@ -31,21 +33,21 @@ const getCodeBlock = async (
   return await res.text();
 };
 
+/** ページ中の最初のコードブロックのファイル名を取得する */
 const getFirstCodeBlockTitle = async (
   page: string,
   project?: string,
 ): Promise<string> => {
   const _project = project ? project : SCRAPBOX_PROJECT_NAME;
-  for (let line of await getPageLines(page, _project)) {
+  for (const line of await getPageLines(page, _project)) {
     if (/code:.*\.abc/.test(line.text)) {
-      return line.text.replace(/^(\t|\s)+/, "").substr(5);
+      return line.text.replace(/^(\t|\s)+/, "").slice(5);
     }
   }
   return "";
 };
 
-const externalABCCache: ExternalABC[] = [];
-
+/** ABC記法のImport文を解析する */
 const parseImport = (line: string): ImportABCInfo | null => {
   if (/%import:.+/.test(line)) {
     const importStr = line.replace(/.*%import:/, "");
@@ -60,6 +62,9 @@ const parseImport = (line: string): ImportABCInfo | null => {
   return null;
 };
 
+/** ABCコードのcache */
+const externalABCCache: ExternalABC[] = [];
+/** cacheを読み込む なかったら`null`を返す*/
 const loadExtABCCache = (importABCInfo: ImportABCInfo): string | null => {
   for (let externalABC of externalABCCache) {
     const source = `${importABCInfo.project}/${importABCInfo.page}`;
@@ -70,6 +75,7 @@ const loadExtABCCache = (importABCInfo: ImportABCInfo): string | null => {
   return null;
 };
 
+/** cacheを登録する */
 const registerExtABCCache = (
   importABCInfo: ImportABCInfo,
   abc: string,
@@ -99,9 +105,10 @@ const parseAndImportABC = async (text: string): Promise<string> => {
   return text.replace(/\n+$/, "");
 };
 
+/** 現在のページにある全てのABCコードブロックを取得する */
 export const getABCBlocks = async (): Promise<ABCBlock[]> => {
   const blocks: ABCBlock[] = [];
-  let tempBlock: ABCBlock |null= null; //連続したcode-block毎に組み立てる
+  let tempBlock: ABCBlock | null = null; //連続したcode-block毎に組み立てる
   let hasCodeBlock = false; //1個前のlineがcode-blockならtrue
 
   //Scrapboxの行
@@ -162,6 +169,7 @@ export const getABCBlocks = async (): Promise<ABCBlock[]> => {
   return blocks;
 };
 
+/** なにかのinline styleを作る */
 export const generateInlineStyle = (
   isEditing: boolean,
   blockHeight: number,
@@ -170,11 +178,16 @@ export const generateInlineStyle = (
 ): string => {
   const top = isEditing ? -(28 + blockHeight) : 0;
   const shadow = isEditing ? "box-shadow: 0 0 8px gray;" : "";
-  return `position: absolute; width: ${width +
-    0.5}px; background: white; z-index: 100; top: ${top}px; left: ${offsetLeft -
-    0.5}px; height: ${blockHeight}px; ${shadow}`;
+  return `position: absolute; width: ${
+    width +
+    0.5
+  }px; background: white; z-index: 100; top: ${top}px; left: ${
+    offsetLeft -
+    0.5
+  }px; height: ${blockHeight}px; ${shadow}`;
 };
 
+// .text-inputの変更検知
 export const registerTextInputMutationObserver = (
   _function: (textInput?: HTMLInputElement) => void,
 ) => {
@@ -187,6 +200,7 @@ export const registerTextInputMutationObserver = (
   textInputObserver.observe(textInput, { attributes: true });
 };
 
+// .shared-cursorの変更検知
 export const registerSharedCursorMutationObserver = (_function: () => void) => {
   const sharedCursors = document.querySelector(
     ".shared-cursors",
@@ -203,18 +217,13 @@ export const registerSharedCursorMutationObserver = (_function: () => void) => {
   cursorObserver.observe(sharedCursors, { childList: true });
 };
 
-export const registerPageTransitionObserver = (_function: () => void) => {
-  const pageWrapper = document.querySelector(".page-wrapper");
-  const transitionObserver = new MutationObserver(_function);
-  transitionObserver.observe(pageWrapper, { attributes: true });
+// DOM取得 別ファイルに切り出すべき
+export const getEditorElement = (): HTMLDivElement => {
+  return document.getElementById("editor") as HTMLDivElement;
 };
 
-export const getEditorElement = (): HTMLElement => {
-  return document.getElementById("editor");
-};
-
-export const getCaretElement = (): HTMLElement => {
-  return getEditorElement().querySelector(".cursor") as HTMLElement;
+export const getCaretElement = (): HTMLSpanElement => {
+  return getEditorElement().querySelector(".cursor") as HTMLSpanElement;
 };
 
 export const getTextInputElement = (): HTMLInputElement => {

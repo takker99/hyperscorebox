@@ -1,7 +1,7 @@
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext"/>
 /// <reference lib="dom"/>
-import abcjs from "https://cdn.skypack.dev/abcjs@5.12.0";
+import * as abcjs from "./deps/abcjs.ts";
 
 //楽譜IMEの候補
 export class IMECandidate {

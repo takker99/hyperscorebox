@@ -1,13 +1,13 @@
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext"/>
 /// <reference lib="dom"/>
-import  abcjs from "https://cdn.skypack.dev/abcjs@5.12.0";
+import { renderAbc, renderMidi } from "./deps/abcjs.ts";
 import { ABCLink } from "./Types.ts";
 import { SCRAPBOX_URL } from "./Scrapbox.ts";
 
 const LINK_HIGHLIGHT_COLOR = "#3965ff";
 const inputEl = document.getElementById("abcinput");
-let shifted: boolean = false;
+let shifted = false;
 
 export const parseLink = (abc: string): ABCLink[] => {
   const parsedLinks: ABCLink[] = [];
@@ -101,8 +101,8 @@ export const render = (
     add_classes: true,
     staffwidth: staffWidth,
   };
-  const tuneObjectArray = abcjs.renderAbc(svgDivID, abc, options);
-  abcjs.renderMidi(playerDivID, abc, {
+  const tuneObjectArray = renderAbc(svgDivID, abc, options);
+  renderMidi(playerDivID, abc, {
     generateInline: false,
     generateDownload: true,
   });
@@ -110,10 +110,10 @@ export const render = (
 
   //リンクをハイライト
   const lines = tuneObjectArray[0].lines;
-  for (let line of lines) {
-    for (let staff of line.staff) {
-      for (let voice of staff.voices) {
-        for (let element of voice) {
+  for (const line of lines) {
+    for (const staff of line.staff) {
+      for (const voice of staff.voices) {
+        for (const element of voice) {
           if (element.startChar === undefined) continue;
           if (getLink(links, Number(element.startChar))) {
             element.abselem.highlight(undefined, LINK_HIGHLIGHT_COLOR);
@@ -133,14 +133,14 @@ export const getSMF = (containerEl: Element): ArrayBuffer => {
   const arrayBuffer = new ArrayBuffer(midiArray.length);
   const dataView = new DataView(arrayBuffer);
   let position = 0;
-  for (let byte of midiArray) {
+  for (const byte of midiArray) {
     dataView.setUint8(position, parseInt(byte, 16));
     position++;
   }
   return arrayBuffer;
 };
 
-window.addEventListener("click", (e) => {
+globalThis.addEventListener("click", (e) => {
   console.log("onclick", "shifted:", e.shiftKey);
   shifted = e.shiftKey;
 });

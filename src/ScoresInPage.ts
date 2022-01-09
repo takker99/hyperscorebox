@@ -20,29 +20,18 @@ export class ScoresInPage {
     } = block;
 
     //ページ遷移時、複数回pushScoreViewが実行されてしまうのでDivの重複を回避する
-    const oldScoreDiv = document.querySelector(`#ABC${titleElementID}`);
-    if (oldScoreDiv) oldScoreDiv.parentNode.removeChild(oldScoreDiv);
+    const oldScoreDiv = document.getElementById(`ABC${titleElementID}`);
+    oldScoreDiv?.remove?.();
 
-    const scoreView = document.createElement("div");
-    scoreView.classList.add("scoreview");
-    scoreView.setAttribute("id", `ABC${titleElementID}`);
-    scoreView.setAttribute(
-      "style",
-      generateInlineStyle(isEditing, blockHeight, offsetLeft, width),
+    block.titleElement.insertAdjacentHTML(
+      "beforeend",
+      `<div class="scoreview" id="ABC${titleElementID}" style="${
+        generateInlineStyle(isEditing, blockHeight, offsetLeft, width)
+      }">
+  <div id="SVG${titleElementID}"></div>
+  <div id="PLAYER${titleElementID}" style="visibility: hidden;"></div>
+</div>`,
     );
-
-    const svgDiv = document.createElement("div");
-    const svgDivID = `SVG${titleElementID}`;
-    svgDiv.setAttribute("id", svgDivID);
-
-    const playerDiv = document.createElement("div");
-    const playerDivID = `PLAYER${titleElementID}`;
-    playerDiv.setAttribute("id", playerDivID);
-    playerDiv.setAttribute("style", `visibility: hidden;`);
-
-    scoreView.appendChild(svgDiv);
-    scoreView.appendChild(playerDiv);
-    block.titleElement.appendChild(scoreView);
 
     render(
       abc,

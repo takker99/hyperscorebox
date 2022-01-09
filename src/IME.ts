@@ -1,5 +1,5 @@
 import { IMECandidate } from "./IMECandidate.ts";
-import  abcjs from "https://cdn.skypack.dev/abcjs@5.12.0";
+import * as abcjs from "./deps/abcjs.ts";
 import {
   getCaretElement,
   getEditorElement,
@@ -7,7 +7,8 @@ import {
   registerTextInputMutationObserver,
 } from "./Scrapbox.ts";
 import { getSMF } from "./ABC.ts";
-import { ABCDictionary, imeDict } from "./ABCDictionary.ts";
+import { getSearchResult, initABCDict } from "./ABCDictionary.ts";
+import type { WebAudioTinySynth } from "./deps/webaudio-tinysynth.d.ts";
 
 type InputEvent = {
   isComposing: boolean;
@@ -27,8 +28,6 @@ class IME {
     "ArrowLeft",
     "ArrowRight",
   ];
-  private readonly tinySynth;
-  private readonly abcDict: ABCDictionary;
   private readonly imeEl;
   private readonly imeInputEl;
   private readonly svgEl;
@@ -38,16 +37,13 @@ class IME {
   private readonly caretEl;
   private readonly scrapboxInputEl;
   private readonly caretPaddingEl;
-  private text: string = "";
+  private text = "";
   private isComposeCompleted: boolean = false;
   private candidates: string[];
   private candidateIndex = -1;
   private candidateEls: IMECandidate[] = [];
 
-  constructor(tinySynth, abcDict) {
-    this.tinySynth = tinySynth;
-    this.abcDict = abcDict;
-
+  constructor(private readonly tinySynth: WebAudioTinySynth) {
     this.imeEl = this.createIMEEl();
     this.imeInputEl = this.createIMEInputEl();
     this.svgEl = this.createSvgEl();
@@ -147,10 +143,14 @@ class IME {
   };
   private updateCaretPadding = (): void => {
     this.caretPaddingEl.textContent = this.text;
-    this.scrapboxInputEl.style.marginLeft = `${this.caretPaddingEl.offsetWidth *
-      1.1}px`;
-    this.caretEl.style.marginLeft = `${this.caretPaddingEl.offsetWidth * 1.1 +
-      2}px`;
+    this.scrapboxInputEl.style.marginLeft = `${
+      this.caretPaddingEl.offsetWidth *
+      1.1
+    }px`;
+    this.caretEl.style.marginLeft = `${
+      this.caretPaddingEl.offsetWidth * 1.1 +
+      2
+    }px`;
   };
   private onJapaneseInput = (e: InputEvent): void => {
     if (this.isComposeCompleted && e.isComposing) {
@@ -264,7 +264,7 @@ class IME {
   };
   private isTextEmpty = (): boolean => !this.text;
   private isIgnoreKey = (inputKey: string): boolean => {
-    for (let ignore of this.IGNORE_KEYS) {
+    for (const ignore of this.IGNORE_KEYS) {
       if (ignore === inputKey) return true;
     }
 
@@ -289,7 +289,7 @@ class IME {
     this.updateHighlight();
   };
   private updateHighlight = (): void => {
-    for (let i in this.candidateEls) {
+    for (const i in this.candidateEls) {
       this.candidateEls[i].highlight(Number(i) === this.candidateIndex);
     }
   };
@@ -300,21 +300,21 @@ class IME {
     this.imeInputEl.value = this.text;
   };
   private generateCandidates = (): void => {
-    this.candidates = this.abcDict.getSearchResult(this.text);
+    this.candidates = getSearchResult(this.text);
   };
   private renderCandidates = (): void => {
-    for (let i in this.candidates) {
+    for (const i in this.candidates) {
       this.candidateEls[i].render(this.candidates[i]);
     }
   };
   private resetCandidates = (): void => {
-    for (let candidate of this.candidateEls) {
+    for (const candidate of this.candidateEls) {
       candidate.reset();
     }
   };
 }
 
-export const initIME = async (tinySynth): Promise<void> => {
-  await imeDict.initABCDict();
-  new IME(tinySynth, imeDict);
+export const initIME = async (tinySynth: WebAudioTinySynth): Promise<void> => {
+  await initABCDict();
+  new IME(tinySynth);
 };

@@ -4,13 +4,13 @@
 import { ScoresInPage } from "./ScoresInPage.ts";
 import {
   getABCBlocks,
-  registerPageTransitionObserver,
   registerSharedCursorMutationObserver,
   registerTextInputMutationObserver,
 } from "./Scrapbox.ts";
 import { ABCBlock } from "./Types.ts";
 import { initIME } from "./IME.ts";
-import WebAudioTinySynth from "https://esm.sh/webaudio-tinysynth@1.1.3";
+//@deno-types=./deps/webaudio-tinysynth.d.ts
+import { WebAudioTinySynth } from "./deps/webaudio-tinysynth.js";
 import { scrapbox } from "./deps/types.ts";
 
 //初期化
@@ -54,6 +54,4 @@ const init = async (): Promise<void> => {
   await initIME(tinySynth);
 };
 
-setTimeout(async () => {
-  await init();
-}, 2000);
+await init();
